@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 """Entry-point script: batch-evaluate a directory of predicted kern files
-against the quartets references.
+against a dataset's references.
 
 Usage:
     python scripts/run_metrics.py --predictions <dir of .kern files>
-                                  [--references $A2S_DATA_ROOT/quartets_prepared/test]
+                                  [--dataset quartets|quartets_add]
+                                  [--references <dir of .kern files>]
                                   [--output results.json] [--csv results.csv]
 
-Predictions are paired with references by track name (file stem). Results
-contain per-track metrics and two aggregates: ``macro`` (mean of per-track
-values) and ``micro`` (pooled errors / pooled counts).
+References are selected by --dataset (default: quartets); --references
+overrides it with an explicit directory. Predictions are paired with
+references by track name (file stem). Results contain per-track metrics and
+two aggregates: ``macro`` (mean of per-track values) and ``micro`` (pooled
+errors / pooled counts).
 """
 
 import argparse
@@ -28,7 +31,7 @@ from a2s_metrics.util import (
     write_metrics_csv,
     write_metrics_json,
 )
-from data_prep.constants import QUARTETS_PREPARED_SUBDIR
+from data_prep.constants import DATASETS, DEFAULT_DATASET, DEFAULT_SPLIT
 
 
 def main() -> int:
@@ -42,11 +45,17 @@ def main() -> int:
         help="Directory with one <track_name>.kern file per piece",
     )
     parser.add_argument(
+        "--dataset",
+        choices=sorted(DATASETS),
+        default=DEFAULT_DATASET,
+        help="Dataset providing the reference scores (default: %(default)s)",
+    )
+    parser.add_argument(
         "--references",
         type=Path,
-        default=DEFAULT_DATA_ROOT / QUARTETS_PREPARED_SUBDIR / "test",
+        default=None,
         help="Directory with the reference <track_name>.kern files "
-        "(default: the prepared quartets test split)",
+        "(default: the prepared %(default)s split of --dataset)",
     )
     parser.add_argument(
         "--output",
@@ -57,8 +66,11 @@ def main() -> int:
     parser.add_argument("--csv", type=Path, default=None, help="Write per-track metrics as CSV")
     args = parser.parse_args()
 
-    references = load_kern_references(args.references)
-    print(f"Loaded {len(references)} reference track(s) from {args.references}\n")
+    references_dir = args.references or (
+        DEFAULT_DATA_ROOT / DATASETS[args.dataset] / DEFAULT_SPLIT
+    )
+    references = load_kern_references(references_dir)
+    print(f"Loaded {len(references)} reference track(s) from {references_dir}\n")
 
     predictions = collect_predictions(args.predictions)
     pairs, missing, extra = pair_predictions(references, predictions)

@@ -1,5 +1,6 @@
 # Direct dependencies of the MIREX 2026 A2S tooling (installed into .venv).
 huggingface_hub==1.32.0
+mido==1.3.3
 pyarrow==25.0.1
 rapidfuzz==3.14.6
 soundfile==0.14.0

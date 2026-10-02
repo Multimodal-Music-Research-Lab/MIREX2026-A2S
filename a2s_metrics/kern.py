@@ -44,7 +44,10 @@ _KERN_DURATIONS = {
     "512": 0.0078125,
 }
 
-_DURATION_PREFIX = re.compile(r"^(\d+)(\.*|q+\.*)")
+# Duration at the start of a kern sub-token, optionally preceded by tie
+# brackets, slurs, phrasing marks or ``&`` continuation signifiers (e.g.
+# ``[4.b-``, ``(2c\``, ``&(8g/&))``).
+_DURATION_PREFIX = re.compile(r"^([\[{(_&]*)(\d*)(\.*|q+\.*)")
 _PITCH_GROUP = re.compile(r"([a-gA-G]+)([#\-n]*)")
 _ACCIDENTAL_SEMITONES = {"#": 1, "-": -1, "n": 0}
 
@@ -105,25 +108,31 @@ def _midi_pitch(letters: str, accidentals: str) -> int | None:
 def _parse_duration(token: str) -> tuple[float, str, bool]:
     """Split the leading duration of a kern sub-token.
 
+    Leading decorations (``[``, ``(``, ``{``, ``_``, ``&``, ``)``) are kept at
+    the front of the returned remainder so the caller can still detect ties
+    and slurs.
+
     Returns:
         ``(quarter_length, remainder, is_grace)``. Grace notes have a quarter
         length of 0; an unparsable sub-token yields ``(0.0, token, False)``.
     """
     match = _DURATION_PREFIX.match(token)
-    if not match or not match.group(1):
+    if not match or not (match.group(2) or match.group(3)):
         return 0.0, token, False
-    digits = match.group(1)
-    tail = token[match.end() :]
-    if "q" in match.group(2) or tail.startswith("q"):
-        return 0.0, tail, True  # grace note: not sounded
+    prefix, digits, dots_or_grace = match.groups()
+    remainder = prefix + token[match.end() :]
+    if "q" in dots_or_grace:
+        return 0.0, remainder, True  # grace note: not sounded
+    if not digits:
+        return 0.0, remainder, False  # no duration encoded (e.g. inline dynamic)
     if digits == "0":
         quarter_length = _KERN_DURATIONS["0"]
     else:
         quarter_length = _KERN_DURATIONS.get(digits, 4.0 / int(digits))
-    dots = match.group(2).count(".")
+    dots = dots_or_grace.count(".")
     if dots:
         quarter_length *= 2.0 - 2.0**-dots
-    return quarter_length, tail, False
+    return quarter_length, remainder, False
 
 
 def _pitches_in(remainder: str) -> list[int]:
@@ -199,8 +208,14 @@ def _apply_interpretations(
     while token_index < len(tokens) and column_index < len(columns):
         token = tokens[token_index]
         if token == "*^":
-            updated.append((token, columns[column_index].clone()))
-            updated.append(("", columns[column_index].clone()))
+            # Split: the first branch continues the column (with its note
+            # history); the new branch starts empty so notes are not
+            # double-counted when the branches are later joined.
+            first = columns[column_index]
+            updated.append((token, first))
+            updated.append(
+                ("", _Column(is_kern=first.is_kern, position=first.position))
+            )
             column_index += 1
             token_index += 1
         elif token == "*v":
