@@ -59,6 +59,15 @@ and extra prediction files are reported as warnings. Results contain
 per-track metrics and two aggregates: `macro` (mean of per-track values) and
 `micro` (pooled errors / pooled counts).
 
+Passing `--kern-only` evaluates only the `**kern` spines: every other spine
+(e.g. `**dynam`) is removed from the references and the predictions before
+the metrics are computed:
+
+```bash
+.venv/bin/python scripts/run_metrics.py \
+    --predictions <dir with <track>.kern files> --kern-only
+```
+
 ## Dataset preparation
 
 ```bash
@@ -80,6 +89,23 @@ Notes:
 - The dataset ships the audio as 16-bit 22 050 Hz mono FLAC, so the default
   `flac` extraction is a byte-for-byte copy; `--audio-format wav` re-encodes
   16-bit PCM WAV via soundfile.
+
+### Staves metadata (Staves-Informed A2S track)
+
+For the Staves-Informed track, participants receive the `**kern` header of
+each excerpt (its leading `*` lines: spine types, instrument codes, clefs,
+key signature, meter and tempo) as side information. The header of every
+prepared excerpt is extracted into a per-split `<track>.krn` file:
+
+```bash
+# -> $A2S_DATA_ROOT/quartets_headers/<split>/<track>.krn
+.venv/bin/python scripts/extract_headers.py
+.venv/bin/python scripts/extract_headers.py --input <dir with *.kern> --output <dir>
+```
+
+Input files are searched recursively under `--input` (default:
+`$A2S_DATA_ROOT/quartets_prepared`) and the directory layout is mirrored
+under `--output` (default: `$A2S_DATA_ROOT/quartets_headers`).
 
 ## Additional quartets dataset
 

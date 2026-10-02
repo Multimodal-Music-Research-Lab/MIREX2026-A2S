@@ -6,6 +6,7 @@ Usage:
     python scripts/run_metrics.py --predictions <dir of .kern files>
                                   [--dataset quartets|quartets_add]
                                   [--references <dir of .kern files>]
+                                  [--kern-only]
                                   [--output results.json] [--csv results.csv]
 
 References are selected by --dataset (default: quartets); --references
@@ -58,6 +59,12 @@ def main() -> int:
         "(default: the prepared %(default)s split of --dataset)",
     )
     parser.add_argument(
+        "--kern-only",
+        action="store_true",
+        help="Ignore every spine that is not **kern (e.g. **dynam) in the "
+        "references and predictions before computing the metrics",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=None,
@@ -69,11 +76,13 @@ def main() -> int:
     references_dir = args.references or (
         DEFAULT_DATA_ROOT / DATASETS[args.dataset] / DEFAULT_SPLIT
     )
-    references = load_kern_references(references_dir)
+    references = load_kern_references(references_dir, kern_only=args.kern_only)
     print(f"Loaded {len(references)} reference track(s) from {references_dir}\n")
+    if args.kern_only:
+        print("Non-**kern spines (e.g. **dynam) are ignored.\n")
 
     predictions = collect_predictions(args.predictions)
-    pairs, missing, extra = pair_predictions(references, predictions)
+    pairs, missing, extra = pair_predictions(references, predictions, kern_only=args.kern_only)
     if not pairs:
         raise SystemExit(
             "No predictions could be paired with references. "

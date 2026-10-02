@@ -5,7 +5,7 @@ import csv
 import json
 from pathlib import Path
 
-from a2s_metrics.constants import MV2H_COMPONENT_KEYS, MV2H_KEY, TEXT_METRIC_KEYS
+from a2s_metrics.constants import KERN_SPINE, MV2H_COMPONENT_KEYS, MV2H_KEY, TEXT_METRIC_KEYS
 
 # Per-metric pooling statistics emitted by evaluate_file, used for micro
 # aggregates: (numerator key, denominator key, pooled kind).
@@ -21,8 +21,38 @@ _POOLING = {
 CORE_METRIC_KEYS = TEXT_METRIC_KEYS + MV2H_COMPONENT_KEYS + (MV2H_KEY,)
 
 
-def load_kern_references(references_dir: Path) -> dict[str, str]:
-    """Load reference kern texts from ``<references_dir>/*.kern`` by stem."""
+def keep_kern_spines(text: str) -> str:
+    """Drop every spine column that is not a ``**kern`` spine (e.g. ``**dynam``).
+
+    Spine types are read from the first exclusive-interpretation record
+    (``**kern  **dynam  ...``); that record and all following records (data,
+    comments, interpretations and ``*-`` terminators) keep only the ``**kern``
+    columns. Files without an exclusive-interpretation record, or without any
+    ``**kern`` spine, are returned unchanged. Spine path records (``*^`` /
+    ``*v``) do not occur in the evaluation data and are not tracked.
+    """
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        tokens = line.split("\t")
+        if not (tokens and all(token.startswith("**") for token in tokens)):
+            continue
+        kern_columns = {i for i, token in enumerate(tokens) if token == KERN_SPINE}
+        if not kern_columns:
+            return text
+        kept = lines[:index] + [
+            "\t".join(token for i, token in enumerate(l.split("\t")) if i in kern_columns)
+            for l in lines[index:]
+        ]
+        return "\n".join(kept)
+    return text
+
+
+def load_kern_references(references_dir: Path, kern_only: bool = False) -> dict[str, str]:
+    """Load reference kern texts from ``<references_dir>/*.kern`` by stem.
+
+    With ``kern_only``, every spine that is not ``**kern`` (e.g. ``**dynam``)
+    is removed from the references (see :func:`keep_kern_spines`).
+    """
     references_dir = Path(references_dir)
     if not references_dir.is_dir():
         raise FileNotFoundError(f"References directory not found: {references_dir}")
@@ -30,6 +60,8 @@ def load_kern_references(references_dir: Path) -> dict[str, str]:
                   sorted(references_dir.glob("*.kern"))}
     if not references:
         raise FileNotFoundError(f"No *.kern reference files found in {references_dir}")
+    if kern_only:
+        references = {name: keep_kern_spines(text) for name, text in references.items()}
     return references
 
 
@@ -45,9 +77,18 @@ def collect_predictions(predictions_dir: Path) -> dict[str, Path]:
 
 
 def pair_predictions(
-    references: dict[str, str], predictions: dict[str, Path]
+    references: dict[str, str],
+    predictions: dict[str, Path],
+    kern_only: bool = False,
 ) -> tuple[list[tuple[str, str, str, Path]], list[str], list[str]]:
     """Pair predictions with references by track stem.
+
+    Args:
+        references: Reference texts by track stem (as returned by
+            :func:`load_kern_references`).
+        predictions: Prediction file paths by track stem.
+        kern_only: Drop every non-``**kern`` spine (e.g. ``**dynam``) from the
+            predictions (see :func:`keep_kern_spines`).
 
     Returns:
         ``(pairs, missing, extra)`` where ``pairs`` holds
@@ -58,7 +99,10 @@ def pair_predictions(
     pairs, extra = [], []
     for name, path in predictions.items():
         if name in references:
-            pairs.append((name, references[name], path.read_text(encoding="utf-8"), path))
+            hypothesis = path.read_text(encoding="utf-8")
+            if kern_only:
+                hypothesis = keep_kern_spines(hypothesis)
+            pairs.append((name, references[name], hypothesis, path))
         else:
             extra.append(name)
     missing = [name for name in references if name not in predictions]

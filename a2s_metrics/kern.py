@@ -20,9 +20,7 @@ from bisect import bisect_right
 from dataclasses import dataclass, replace
 from itertools import groupby
 
-from a2s_metrics.constants import DEFAULT_METER, DEFAULT_TEMPO_QPM
-
-KERN_SPINE = "**kern"
+from a2s_metrics.constants import DEFAULT_METER, DEFAULT_TEMPO_QPM, KERN_SPINE
 
 # Semitone offsets of the kern pitch letters.
 _PITCH_CLASSES = {"c": 0, "d": 2, "e": 4, "f": 5, "g": 7, "a": 9, "b": 11}

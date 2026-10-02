@@ -17,6 +17,10 @@ DURATION_DELTA_MS = 100.0
 DEFAULT_TEMPO_QPM = 120.0
 DEFAULT_METER = (4, 4)
 
+# Exclusive interpretation signifying a kern spine (other spines, e.g.
+# **dynam, can be ignored with --kern-only in scripts/run_metrics.py).
+KERN_SPINE = "**kern"
+
 # Metric keys produced per piece. WER / CER / LER assess the kern text,
 # the MV2H components assess the transcribed score (harmonic analysis is
 # excluded for the initial edition, see the MIREX 2026 A2S wiki page).
