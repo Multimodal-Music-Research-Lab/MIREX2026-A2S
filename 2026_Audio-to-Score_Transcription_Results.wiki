@@ -36,42 +36,40 @@
 
 == QuartetsMIREX 2026 test set ==
 
+TODO Describe
+
 == Staves-Informed A2S ==
 
 === Quartets test set ===
 
 {| class="wikitable"
 ! Submission
-! SER (sym-er, %)
-! CER
 ! WER
+! CER
 ! LER
 ! MV2H
 |-
 | Lu et al.
-|
+| 0.2160
 | 0.2385
-| 0.4024
-| 0.6167
-| 0.8849
+| 0.5983
+| 0.8796
 |}
 
 === QuartetsMIREX 2026 ===
 
 {| class="wikitable"
 ! Submission
-! SER (sym-er, %)
-! CER
 ! WER
+! CER
 ! LER
 ! MV2H
 |-
 | Lu et al.
-|
-| 0.3979
-| 0.6200
-| 0.7968
-| 0.7935
+| 0.3212
+| 0.3578
+| 0.7558
+| 0.7936
 |}
 
 == Blind A2S ==
@@ -80,34 +78,42 @@
 
 {| class="wikitable"
 ! Submission
-! SER (sym-er, %)
-! CER
 ! WER
+! CER
 ! LER
 ! MV2H
 |-
 | Cummins et al.
-|
-| 0.1750
-| 0.2331
-| 0.2901
-| 0.9374
+| 0.0346
+| 0.0347
+| 0.0980
+| 0.9478
+|-
+| Hidalgo-Centeno et al.
+| 0.0286
+| 0.0276
+| 0.0792
+| 0.9492
 |}
 
 === QuartetsMIREX 2026 ===
 
 {| class="wikitable"
 ! Submission
-! SER (sym-er, %)
-! CER
 ! WER
+! CER
 ! LER
 ! MV2H
 |-
 | Cummins et al.
-|
-| 0.4877
-| 0.7253
-| 0.9078
-| 0.4625
+| 0.3722
+| 0.4021
+| 0.8700
+| 0.5742
+|- 
+| Hidalgo-Centeno et al.
+| 0.3937
+| 0.4194
+| 0.8440
+| 0.5492
 |}
