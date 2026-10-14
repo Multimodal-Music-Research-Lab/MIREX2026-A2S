@@ -1,0 +1,87 @@
+== Submissions ==
+
+{| class="wikitable"
+! Team
+! PDF
+! A2S Track
+! Training size
+! Number of parameters
+! Training hours
+! Inference time
+|-
+| <!-- Team name -->
+| <!-- Link to the submission paper -->
+| <!-- Staves-Informed A2S or Blind A2S -->
+| <!-- Training data size -->
+| <!-- Number of model parameters -->
+| <!-- GPU/CPU training hours and device -->
+| <!-- Time required to process the evaluation set -->
+|}
+
+== Staves-Informed A2S ==
+
+=== Quartets test set ===
+
+{| class="wikitable"
+! Submission
+! CER
+! WER
+! LER
+! MV2H
+|-
+| <!-- Submission name -->
+| <!-- CER -->
+| <!-- WER -->
+| <!-- LER -->
+| <!-- MV2H -->
+|}
+
+=== QuartetsMIREX 2026 ===
+
+{| class="wikitable"
+! Submission
+! CER
+! WER
+! LER
+! MV2H
+|-
+| <!-- Submission name -->
+| <!-- CER -->
+| <!-- WER -->
+| <!-- LER -->
+| <!-- MV2H -->
+|}
+
+== Blind A2S ==
+
+=== Quartets test set ===
+
+{| class="wikitable"
+! Submission
+! CER
+! WER
+! LER
+! MV2H
+|-
+| <!-- Submission name -->
+| <!-- CER -->
+| <!-- WER -->
+| <!-- LER -->
+| <!-- MV2H -->
+|}
+
+=== QuartetsMIREX 2026 ===
+
+{| class="wikitable"
+! Submission
+! CER
+! WER
+! LER
+! MV2H
+|-
+| <!-- Submission name -->
+| <!-- CER -->
+| <!-- WER -->
+| <!-- LER -->
+| <!-- MV2H -->
+|}
