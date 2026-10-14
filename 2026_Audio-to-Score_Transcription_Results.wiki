@@ -6,17 +6,35 @@
 ! A2S Track
 ! Training size
 ! Number of parameters
-! Training hours
-! Inference time
+! Training GPU hours
+! Inference real-time factor
 |-
-| <!-- Team name -->
-| <!-- Link to the submission paper -->
-| <!-- Staves-Informed A2S or Blind A2S -->
-| <!-- Training data size -->
-| <!-- Number of model parameters -->
-| <!-- GPU/CPU training hours and device -->
-| <!-- Time required to process the evaluation set -->
+| Lu et al.
+|
+| Staves-Informed
+| 24,333 (Quartets)
+| 47.1M (46.5M trainable)
+| 22.92 (H800)
+| 0.690
+|-
+| Cummins et al.
+|
+| Blind
+| Quartets
+|
+|
+|
+|-
+| Hidalgo-Centeno et al.
+|
+| Blind
+| 24,351 (Quartets)
+| 322M
+| 185 (RTX 5090 32GB)
+| 0.408
 |}
+
+== QuartetsMIREX 2026 test set ==
 
 == Staves-Informed A2S ==
 
@@ -24,32 +42,36 @@
 
 {| class="wikitable"
 ! Submission
+! SER (sym-er, %)
 ! CER
 ! WER
 ! LER
 ! MV2H
 |-
-| <!-- Submission name -->
-| <!-- CER -->
-| <!-- WER -->
-| <!-- LER -->
-| <!-- MV2H -->
+| Lu et al.
+|
+| 0.2385
+| 0.4024
+| 0.6167
+| 0.8849
 |}
 
 === QuartetsMIREX 2026 ===
 
 {| class="wikitable"
 ! Submission
+! SER (sym-er, %)
 ! CER
 ! WER
 ! LER
 ! MV2H
 |-
-| <!-- Submission name -->
-| <!-- CER -->
-| <!-- WER -->
-| <!-- LER -->
-| <!-- MV2H -->
+| Lu et al.
+|
+| 0.3979
+| 0.6200
+| 0.7968
+| 0.7935
 |}
 
 == Blind A2S ==
@@ -58,30 +80,34 @@
 
 {| class="wikitable"
 ! Submission
+! SER (sym-er, %)
 ! CER
 ! WER
 ! LER
 ! MV2H
 |-
-| <!-- Submission name -->
-| <!-- CER -->
-| <!-- WER -->
-| <!-- LER -->
-| <!-- MV2H -->
+| Cummins et al.
+|
+| 0.1750
+| 0.2331
+| 0.2901
+| 0.9374
 |}
 
 === QuartetsMIREX 2026 ===
 
 {| class="wikitable"
 ! Submission
+! SER (sym-er, %)
 ! CER
 ! WER
 ! LER
 ! MV2H
 |-
-| <!-- Submission name -->
-| <!-- CER -->
-| <!-- WER -->
-| <!-- LER -->
-| <!-- MV2H -->
+| Cummins et al.
+|
+| 0.4877
+| 0.7253
+| 0.9078
+| 0.4625
 |}
