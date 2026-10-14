@@ -36,7 +36,9 @@
 
 == QuartetsMIREX 2026 test set ==
 
-TODO Describe
+The "Undisclosed Evaluation Set" mentioned in the challenge consists of 8 string quartets score taken from [kern.ccarh.org](https://kern.ccarh.org) 
+and processed like the original Quartets dataset to produce 373 kern excerpts.
+These quartets are from composers not represented in the original dataset: Schubert, Brahms, and Mendelssohn.
 
 == Staves-Informed A2S ==
 
