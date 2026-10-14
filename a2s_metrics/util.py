@@ -10,6 +10,7 @@ from a2s_metrics.constants import KERN_SPINE, MV2H_COMPONENT_KEYS, MV2H_KEY, TEX
 # Per-metric pooling statistics emitted by evaluate_file, used for micro
 # aggregates: (numerator key, denominator key, pooled kind).
 _POOLING = {
+    "SER": ("SER_errors", "SER_length", "percentage"),
     "WER": ("WER_errors", "WER_length", "ratio"),
     "CER": ("CER_errors", "CER_length", "ratio"),
     "LER": ("LER_errors", "LER_length", "ratio"),
@@ -114,6 +115,8 @@ def _pooled(numerator: float, denominator: float, kind: str) -> float:
         return 2.0 * numerator / (2.0 * numerator + denominator) if (numerator > 0) else 0.0
     if denominator == 0:
         return 0.0
+    if kind == "percentage":
+        return 100.0 * numerator / denominator
     return numerator / denominator
 
 
@@ -147,7 +150,8 @@ def format_summary(results: dict) -> str:
     lines = [f"Evaluated {results['counts']['evaluated']} track(s).", ""]
     for label, metrics in results["aggregate"].items():
         lines.append(f"[{label}]")
-        lines.append(f"  WER        : {metrics['WER']:.4f}")
+        lines.append(f"  SER (sym-er): {metrics['SER']:.4f}%")
+        lines.append(f"  WER (raw)  : {metrics['WER']:.4f}")
         lines.append(f"  CER        : {metrics['CER']:.4f}")
         lines.append(f"  LER        : {metrics['LER']:.4f}")
         lines.append(f"  Multi-pitch: {metrics['MultiPitch']:.4f}")

@@ -22,10 +22,16 @@ with `--output` / `--raw-dir` / `--references`.
 The metrics assess both the textual quality and the musical transcription
 quality of predicted `**kern` files:
 
-- **WER**: Levenshtein distance over whitespace-separated (tab/newline) tokens
-  of the kern files.
-- **CER**: Levenshtein distance over the characters of the kern files.
-- **LER**: Levenshtein distance over complete lines of the kern files.
+- **SER**: the A2S Transformer `sym-er` metric, using cleaned `**kern` tokens,
+  explicit voice/row boundary tokens, and pooled Levenshtein distance. It is
+  reported as a percentage, matching the upstream implementation.
+- **WER**: the original raw-file metric, using whitespace-separated
+  (tab/newline) tokens of the kern files. It is retained for comparison and is
+  reported as a fraction.
+- **CER**: Levenshtein distance over the characters of the cleaned `**kern`
+  representation.
+- **LER**: Levenshtein distance over complete lines of the cleaned `**kern`
+  representation.
 - **MV2H**: mean of four sub-metrics computed on the parsed scores
   (multi-pitch detection, voice separation, metrical alignment, note value
   detection). The harmonic analysis component is excluded for the initial

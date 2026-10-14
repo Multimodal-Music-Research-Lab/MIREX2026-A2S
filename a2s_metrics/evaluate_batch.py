@@ -12,7 +12,7 @@ def evaluate_file(reference_text: str, hypothesis_text: str) -> dict[str, float]
     """Compute every MIREX 2026 A2S metric for one piece.
 
     Returns:
-        A flat dict with the core metric values (``WER``, ``CER``, ``LER``,
+        A flat dict with the core metric values (``SER``, ``WER``, ``CER``, ``LER``,
         ``MultiPitch``, ``Voice``, ``Meter``, ``NoteValue``, ``MV2H``) plus
         the pooling statistics used for micro aggregates (``<key>_errors`` /
         ``<key>_length`` for the text metrics, ``<key>_tp`` / ``<key>_err``

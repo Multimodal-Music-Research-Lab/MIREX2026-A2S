@@ -21,10 +21,9 @@ DEFAULT_METER = (4, 4)
 # **dynam, can be ignored with --kern-only in scripts/run_metrics.py).
 KERN_SPINE = "**kern"
 
-# Metric keys produced per piece. WER / CER / LER assess the kern text,
-# the MV2H components assess the transcribed score (harmonic analysis is
-# excluded for the initial edition, see the MIREX 2026 A2S wiki page).
-TEXT_METRIC_KEYS = ("WER", "CER", "LER")
+# Metric keys produced per piece. SER, CER and LER use the cleaned kern
+# representation; WER is the original raw-text metric.
+TEXT_METRIC_KEYS = ("SER", "WER", "CER", "LER")
 MV2H_COMPONENT_KEYS = ("MultiPitch", "Voice", "Meter", "NoteValue")
 MV2H_KEY = "MV2H"
 ALL_METRIC_KEYS = TEXT_METRIC_KEYS + MV2H_COMPONENT_KEYS + (MV2H_KEY,)
