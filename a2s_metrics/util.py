@@ -70,7 +70,7 @@ def collect_predictions(predictions_dir: Path) -> dict[str, Path]:
     predictions_dir = Path(predictions_dir)
     if not predictions_dir.is_dir():
         raise FileNotFoundError(f"Predictions directory not found: {predictions_dir}")
-    predictions = {path.stem: path for path in sorted(predictions_dir.glob("*.kern"))}
+    predictions = {path.stem: path for path in sorted(predictions_dir.glob("*.krn"))}
     if not predictions:
         raise FileNotFoundError(f"No *.kern prediction files found in {predictions_dir}")
     return predictions

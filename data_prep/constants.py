@@ -14,6 +14,11 @@ QUARTETS_PREPARED_SUBDIR = "quartets_prepared"
 # Staves metadata for the Staves-Informed A2S track: the header of each
 # prepared excerpt (its leading '*' lines), one <track>.krn file per excerpt.
 QUARTETS_HEADERS_SUBDIR = "quartets_headers"
+# Variant keeping only the **kern spines of each header (e.g. no **dynam).
+QUARTETS_HEADERS_KERN_ONLY_SUBDIR = "quartets_headers_kern_only"
+
+# Number of **kern spines per quartets excerpt (one voice per instrument).
+KERN_SPINES_PER_EXCERPT = 4
 
 # Hugging Face is unreachable from some networks; hf-mirror.com is a working
 # mirror of the Hub and is used by default (as in the MIREX2026-ALT repo).

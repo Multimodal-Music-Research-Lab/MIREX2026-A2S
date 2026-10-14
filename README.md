@@ -99,13 +99,18 @@ prepared excerpt is extracted into a per-split `<track>.krn` file:
 
 ```bash
 # -> $A2S_DATA_ROOT/quartets_headers/<split>/<track>.krn
+#    $A2S_DATA_ROOT/quartets_headers_kern_only/<split>/<track>.krn (**kern spines only)
 .venv/bin/python scripts/extract_headers.py
 .venv/bin/python scripts/extract_headers.py --input <dir with *.kern> --output <dir>
 ```
 
 Input files are searched recursively under `--input` (default:
 `$A2S_DATA_ROOT/quartets_prepared`) and the directory layout is mirrored
-under `--output` (default: `$A2S_DATA_ROOT/quartets_headers`).
+under `--output` (default: `$A2S_DATA_ROOT/quartets_headers`). A second
+export keeping only the `**kern` spine columns is written to
+`--kern-only-output` (default: `$A2S_DATA_ROOT/quartets_headers_kern_only`);
+quartets excerpts always have exactly 4 `**kern` spines, and files deviating
+from this are reported as warnings.
 
 ## Additional quartets dataset
 
