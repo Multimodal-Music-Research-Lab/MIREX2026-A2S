@@ -35,6 +35,63 @@ _TEMPO_TOLERANCE_Q = 1.0
 _TEMPO_TOLERANCE_BPM = 1.0
 
 
+def rewrite_fourth_instrument(text: str, instrument: str = "flt") -> str:
+    """Set the fourth ``**kern`` spine's instrument interpretation.
+
+    The additional sources use a fourth violin part, whereas the published
+    Quartets dataset uses flute for that voice. The fourth ``**kern`` spine and
+    any immediately following auxiliary spines belonging to it (normally its
+    paired ``**dynam`` spine) receive the new instrument token; musical content
+    remains untouched.
+    """
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    spine_line_index = next(
+        (index for index, line in enumerate(lines) if line.split("\t").count("**kern") >= 4),
+        None,
+    )
+    if spine_line_index is None:
+        return text
+    spine_tokens = lines[spine_line_index].split("\t")
+    kern_indices = [index for index, token in enumerate(spine_tokens) if token == "**kern"]
+    if len(kern_indices) < 4:
+        return text
+    fourth_kern_index = kern_indices[3]
+    instrument_line_index = next(
+        (
+            index
+            for index in range(spine_line_index + 1, len(lines))
+            if any(token.startswith("*I") for token in lines[index].split("\t"))
+        ),
+        None,
+    )
+    if instrument_line_index is None:
+        raise ValueError("Score does not contain instrument interpretations")
+    instrument_tokens = lines[instrument_line_index].split("\t")
+    if fourth_kern_index >= len(instrument_tokens):
+        raise ValueError("Instrument interpretation has fewer columns than spine line")
+    next_kern_index = next(
+        (
+            index
+            for index in kern_indices
+            if index > fourth_kern_index
+        ),
+        len(spine_tokens),
+    )
+    for index in range(fourth_kern_index, next_kern_index):
+        if instrument_tokens[index].startswith("*I"):
+            instrument_tokens[index] = f"*I{instrument}"
+    lines[instrument_line_index] = "\t".join(instrument_tokens)
+    return "\n".join(lines)
+
+
+def _kern_spine_count(text: str) -> int:
+    """Return the number of ``**kern`` spines in a score."""
+    return next(
+        (line.split("\t").count("**kern") for line in text.splitlines() if "**kern" in line),
+        0,
+    )
+
+
 def download_additional(
     raw_dir: Path, urls_file: Path = ADDITIONAL_URLS_FILE, force: bool = False
 ) -> list[str]:
@@ -139,6 +196,7 @@ def prepare_additional(
     soundfont: Path = DEFAULT_SOUNDFONT,
     audio_format: str = "flac",
     gain: float = DEFAULT_SYNTH_GAIN,
+    fourth_instrument: str | None = None,
     limit: int | None = None,
     skip_existing: bool = False,
 ) -> dict[str, int]:
@@ -163,13 +221,21 @@ def prepare_additional(
             for line in validate_against_midi(source, midi_path):
                 print(line)
         fragments, discarded = fragment_source(source, rng, min_measures, max_measures)
+        if fourth_instrument:
+            fragments = [fragment for fragment in fragments if _kern_spine_count(fragment.text) == 4]
         for reason, measure in discarded:
             print(f"    discarded fragment at measure {measure + 1}: {reason}")
         if limit is not None:
             fragments = fragments[:limit]
         for fragment in fragments:
             _prepare_fragment(
-                fragment, output_dir, soundfont, audio_format, skip_existing, gain
+                fragment,
+                output_dir,
+                soundfont,
+                audio_format,
+                skip_existing,
+                gain,
+                fourth_instrument,
             )
         counts[stem] = len(fragments)
         print(f"    {len(fragments)} fragment(s) prepared ({len(discarded)} discarded)")
@@ -185,21 +251,27 @@ def _prepare_fragment(
     audio_format: str,
     skip_existing: bool,
     gain: float,
+    fourth_instrument: str | None = None,
 ) -> None:
     """Write one fragment reference (and its synthesized audio)."""
     kern_path = output_dir / f"{fragment.track_id}.kern"
     flac_path = output_dir / f"{fragment.track_id}.flac"
     if skip_existing and kern_path.exists() and (audio_format == "none" or flac_path.exists()):
         return
-    kern_path.write_text(fragment.text, encoding="utf-8")
+    fragment_text = (
+        rewrite_fourth_instrument(fragment.text, fourth_instrument)
+        if fourth_instrument
+        else fragment.text
+    )
+    kern_path.write_text(fragment_text, encoding="utf-8")
     if audio_format == "none":
         return
-    score = parse_kern(fragment.text)
+    score = parse_kern(fragment_text)
     if not score.notes:
         raise RuntimeError(f"{fragment.track_id}: fragment without notes")
     if len({note.voice for note in score.notes}) > 4:
         raise RuntimeError(f"{fragment.track_id}: more than four voices")
-    performance = parse_fragment_performance(fragment.text)
+    performance = parse_fragment_performance(fragment_text)
     note_end_q = max(
         off_q
         for column_notes in performance["column_notes"]
@@ -209,7 +281,7 @@ def _prepare_fragment(
     with tempfile.TemporaryDirectory() as tmp:
         midi_path = Path(tmp) / f"{fragment.track_id}.mid"
         buffer = io.BytesIO()
-        fragment_to_midi(fragment.text).save(file=buffer)
+        fragment_to_midi(fragment_text).save(file=buffer)
         midi_path.write_bytes(buffer.getvalue())
         duration = synthesize_flac(midi_path, flac_path, soundfont, gain=gain)
     if not expected - 0.5 <= duration <= expected + 8.0:

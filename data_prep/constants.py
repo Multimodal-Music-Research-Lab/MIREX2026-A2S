@@ -43,11 +43,15 @@ AUDIO_SAMPLE_RATE = 22050
 ADDITIONAL_URLS_FILE = Path(__file__).resolve().parents[1] / "additional_quartets.txt"
 ADDITIONAL_RAW_SUBDIR = "quartets_add_raw"
 ADDITIONAL_PREPARED_SUBDIR = "quartets_add_prepared"
+ADDITIONAL_FLUTE_PREPARED_SUBDIR = "quartets_add_flute_prepared"
+ADDITIONAL_FLUTE_HEADERS_SUBDIR = "quartets_add_flute_headers"
+ADDITIONAL_FLUTE_HEADERS_KERN_ONLY_SUBDIR = "quartets_add_flute_headers_kern_only"
 
 # Evaluation dataset registry (--dataset): name -> prepared-data subdir.
 DATASETS = {
     "quartets": QUARTETS_PREPARED_SUBDIR,
     "quartets_add": ADDITIONAL_PREPARED_SUBDIR,
+    "quartets_add_flute": ADDITIONAL_FLUTE_PREPARED_SUBDIR,
 }
 DEFAULT_DATASET = "quartets"
 

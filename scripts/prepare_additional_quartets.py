@@ -8,7 +8,8 @@ Usage:
         [--raw-dir $A2S_DATA_ROOT/quartets_add_raw]
         [--output $A2S_DATA_ROOT/quartets_add_prepared]
         [--split test] [--seed 0] [--min-measures 3] [--max-measures 6]
-        [--soundfont /usr/share/sounds/sf2/FluidR3_GM.sf2]
+         [--soundfont /usr/share/sounds/sf2/FluidR3_GM.sf2]
+         [--fourth-instrument flt]
         [--audio-format flac] [--limit N] [--skip-existing]
 
 Each source score is split into non-overlapping fragments of 3-6 measures
@@ -88,6 +89,11 @@ def main() -> int:
         help="fluidsynth gain (default: %(default)s)",
     )
     parser.add_argument(
+        "--fourth-instrument",
+        default=None,
+        help="Replace the fourth **kern instrument code before synthesis (e.g. flt)",
+    )
+    parser.add_argument(
         "--audio-format",
         choices=["flac", "none"],
         default="flac",
@@ -124,6 +130,7 @@ def main() -> int:
         soundfont=args.soundfont,
         audio_format=args.audio_format,
         gain=args.gain,
+        fourth_instrument=args.fourth_instrument,
         limit=args.limit,
         skip_existing=args.skip_existing,
     )
