@@ -1,5 +1,8 @@
 # MIREX 2026 — Audio-to-Score Transcription (A2S)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+
 Code for the MIREX 2026 A2S challenge: evaluation metrics and dataset
 preparation for the [Quartets dataset](https://huggingface.co/datasets/PRAIG/quartets-quartets).
 
