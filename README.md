@@ -9,6 +9,9 @@ derived from public ``**kern`` scores.
 > below will not complete until that host is back online. The listed scores
 > were not found in the `humdrum-tools/humdrum-data` GitHub repository.
 
+The official challenge call was announced [here](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription),
+and final results have been published [here](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription_Results).
+
 ## Setup
 
 Python 3.10 or newer is required. The Quartets Extended audio-preparation
