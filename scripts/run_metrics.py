@@ -4,12 +4,12 @@ against a dataset's references.
 
 Usage:
     python scripts/run_metrics.py --predictions <dir of .kern files>
-                                  [--dataset quartets|quartets_add]
+                                  [--dataset quartets_extended]
                                   [--references <dir of .kern files>]
                                   [--output results.json] [--csv results.csv]
 
-References are selected by --dataset (default: quartets); --references
-overrides it with an explicit directory. Predictions are paired with
+References are selected by --dataset (default: quartets_extended);
+--references overrides it with an explicit directory. Predictions are paired with
 references by track name (file stem). Results contain per-track metrics and
 two aggregates: ``macro`` (mean of per-track values) and ``micro`` (pooled
 errors / pooled counts).
@@ -35,6 +35,7 @@ from data_prep.constants import DATASETS, DEFAULT_DATASET, DEFAULT_SPLIT
 
 
 def main() -> int:
+    """Parse CLI arguments, evaluate predictions, and write requested results."""
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -55,7 +56,7 @@ def main() -> int:
         type=Path,
         default=None,
         help="Directory with the reference <track_name>.kern files "
-        "(default: the prepared %(default)s split of --dataset)",
+        "(default: the prepared test split of --dataset)",
     )
     parser.add_argument(
         "--output",

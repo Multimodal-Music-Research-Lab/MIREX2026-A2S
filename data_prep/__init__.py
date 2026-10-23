@@ -1,1 +1,1 @@
-"""Dataset download and preparation for the MIREX 2026 A2S challenge."""
+"""Preparation tools for the Quartets Extended dataset."""

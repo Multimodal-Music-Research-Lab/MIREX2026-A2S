@@ -81,6 +81,7 @@ class _Column:
     open_ties: dict[int, int] = None  # type: ignore[assignment]
 
     def __post_init__(self):
+        """Initialize independent mutable note and tie containers."""
         if self.notes is None:
             self.notes = []
         if self.open_ties is None:
@@ -287,6 +288,7 @@ def _ql_to_ms_converter(tempo_map: list[tuple[float, float]]):
         offsets_ms.append(offsets_ms[-1] + span * 60000.0 / tempo_map[index - 1][1])
 
     def convert(quarter_length: float) -> float:
+        """Convert a quarter-note position to elapsed milliseconds."""
         index = max(0, bisect_right(positions, quarter_length) - 1)
         return offsets_ms[index] + (quarter_length - positions[index]) * 60000.0 / tempo_map[
             index

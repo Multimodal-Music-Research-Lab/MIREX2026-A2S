@@ -1,4 +1,4 @@
-"""Parsing and fragmentation of **kern sources (additional quartets dataset).
+"""Parsing and fragmentation of **kern sources for Quartets Extended.
 
 Implements the data preparation rules of Roman et al. (2019, section 2.3) on
 raw ``**kern`` files downloaded from kern.ccarh.org:
@@ -119,6 +119,7 @@ class _Structure:
 
     @classmethod
     def from_spine_line(cls, tokens: list[str]) -> "_Structure":
+        """Create the initial spine map from an exclusive-interpretation row."""
         count = len(tokens)
         return cls(
             types=list(tokens),
@@ -227,6 +228,7 @@ def _header_category(tokens: list[str]) -> str | None:
 
 
 def _first_tempo(tokens: list[str]) -> float | None:
+    """Return the first parseable *MM tempo marking in an interpretation row."""
     for token in tokens:
         if token.startswith("*MM"):
             try:
@@ -297,6 +299,7 @@ def parse_source(text: str, stem: str) -> KernSource:
     positions: list[float] = []
 
     def position() -> float:
+        """Return the furthest quarter-note position reached by any spine."""
         return max(positions, default=0.0)
 
     for raw_line in lines:

@@ -66,6 +66,7 @@ def pair_predictions(
 
 
 def _pooled(numerator: float, denominator: float, kind: str) -> float:
+    """Combine accumulated metric counts into a pooled score."""
     if kind == "f1":
         return 2.0 * numerator / (2.0 * numerator + denominator) if (numerator > 0) else 0.0
     if denominator == 0:

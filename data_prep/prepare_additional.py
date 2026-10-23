@@ -1,4 +1,4 @@
-"""Download and preparation pipeline for the additional quartets dataset.
+"""Download and preparation pipeline for the Quartets Extended dataset.
 
 Sources are ``**kern`` files listed in ``additional_quartets.txt`` (kern
 scores hosted on kern.ccarh.org). For every URL, the ``format`` argument is
@@ -6,8 +6,8 @@ rewritten to fetch the kern score and its MIDI rendering. Preparation follows
 the Roman et al. (2019) rules (see :mod:`data_prep.kern_fragment`): the kern
 scores are split into 3-6 measure fragments, each fragment is rendered to
 MIDI (:mod:`data_prep.kern_midi`) and synthesized to 16-bit 22 050 Hz mono
-FLAC with fluidsynth (:mod:`data_prep.synthesis`), producing the same
-``<track>.kern`` + ``<track>.flac`` layout as the quartets dataset.
+FLAC with fluidsynth (:mod:`data_prep.synthesis`), producing paired
+``<track>.kern`` and ``<track>.flac`` files.
 """
 
 import io
@@ -36,31 +36,52 @@ _TEMPO_TOLERANCE_BPM = 1.0
 
 
 def download_additional(
-    raw_dir: Path, urls_file: Path = ADDITIONAL_URLS_FILE, force: bool = False
+    raw_dir: Path,
+    urls_file: Path = ADDITIONAL_URLS_FILE,
+    force: bool = False,
+    limit: int | None = None,
 ) -> list[str]:
-    """Download the kern and MIDI files of every URL in ``urls_file``.
+    """Download the kern and MIDI files of selected URLs in ``urls_file``.
 
     The ``format`` argument of each URL is rewritten to ``kern`` and ``midi``
-    respectively. Returns the list of source stems.
+    respectively. ``limit`` selects the first N non-comment URLs. Returns the
+    list of source stems.
     """
     raw_dir = Path(raw_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
     stems: list[str] = []
-    for url in urls_file.read_text(encoding="utf-8").splitlines():
-        url = url.strip()
-        if not url or url.startswith("#"):
-            continue
+    urls = [
+        url.strip()
+        for url in urls_file.read_text(encoding="utf-8").splitlines()
+        if url.strip() and not url.strip().startswith("#")
+    ]
+    if limit is not None:
+        urls = urls[:limit]
+    total = len(urls)
+    for index, url in enumerate(urls, start=1):
         stem = re.search(r"[?&]file=([^&]+)", url).group(1)
         stem = stem.removesuffix(".krn")
         for fmt, extension in (("kern", "kern"), ("midi", "midi")):
             destination = raw_dir / f"{stem}.{extension}"
             if destination.exists() and destination.stat().st_size > 0 and not force:
+                print(
+                    f"[{index}/{total}] {stem}: {extension} already downloaded; skipping",
+                    flush=True,
+                )
                 continue
             fmt_url = _FORMAT_PARAM.sub(rf"\g<1>format={fmt}", url)
+            print(f"[{index}/{total}] Downloading {stem} ({extension})...", flush=True)
             subprocess.run(
-                ["wget", "-q", "-O", str(destination), fmt_url],
+                [
+                    "wget",
+                    "--progress=bar:force:noscroll",
+                    "--timeout=30",
+                    "--tries=1",
+                    "-O",
+                    str(destination),
+                    fmt_url,
+                ],
                 check=True,
-                capture_output=True,
             )
         stems.append(stem)
         print(f"downloaded {stem} (.kern + .midi)")
@@ -141,18 +162,26 @@ def prepare_additional(
     gain: float = DEFAULT_SYNTH_GAIN,
     limit: int | None = None,
     skip_existing: bool = False,
+    source_stems: list[str] | None = None,
 ) -> dict[str, int]:
     """Fragment the downloaded sources and synthesize the fragment audio.
 
     Writes ``<track>.kern`` (+ ``<track>.flac`` unless ``audio_format`` is
-    ``none``) under ``<output_root>/<split>/``. Returns per-source fragment
-    counts.
+    ``none``) under ``<output_root>/<split>/``. When ``source_stems`` is
+    provided, only those downloaded sources are prepared. Returns per-source
+    fragment counts.
     """
     output_dir = Path(output_root) / split
     output_dir.mkdir(parents=True, exist_ok=True)
     rng = random.Random(seed)
     counts: dict[str, int] = {}
-    for kern_path in sorted(Path(raw_dir).glob("*.kern")):
+    kern_paths = sorted(Path(raw_dir).glob("*.kern"))
+    if source_stems is not None:
+        selected_stems = set(source_stems)
+        kern_paths = [path for path in kern_paths if path.stem in selected_stems]
+    elif limit is not None:
+        kern_paths = kern_paths[:limit]
+    for kern_path in kern_paths:
         stem = kern_path.stem
         source = parse_source(kern_path.read_text(encoding="utf-8"), stem)
         print(f"{stem}: {len(source.regions)} measures, {source.total_q:.1f}q")

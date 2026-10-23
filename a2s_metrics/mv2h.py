@@ -13,8 +13,8 @@ on via the A2S Transformer repository (Alfaro-Contreras et al., 2024):
 - **Note value detection**: mean per-note duration score over the notes that
   are multi-pitch and voice matches.
 
-The harmonic analysis component is excluded for the initial edition of the
-challenge (no chord information in the datasets, see the wiki page), so
+The harmonic analysis component is excluded for this edition of the
+challenge (the released datasets do not provide chord information), so
 ``MV2H`` is the mean of the four components above.
 """
 
@@ -103,16 +103,19 @@ def _cluster_connections(clusters: dict[tuple[float, float], _Cluster]) -> None:
 
 
 def _successor_notes(cluster: _Cluster) -> list[Note]:
+    """Flatten the notes in a cluster's directly connected successors."""
     return [note for successor in cluster.successors for note in successor.notes]
 
 
 def _find_cluster(
     voices: dict[int, dict[tuple[float, float], _Cluster]], note: Note
 ) -> _Cluster | None:
+    """Find the cluster containing a note in its voice's cluster map."""
     return voices.get(note.voice, {}).get((note.on, note.off))
 
 
 def _notes_match(reference: Note, transcription: Note) -> bool:
+    """Return whether two notes meet the MV2H pitch and onset criteria."""
     return reference.pitch == transcription.pitch and (
         abs(reference.on - transcription.on) <= ONSET_DELTA_MS
     )
@@ -300,7 +303,7 @@ def compute_mv2h(reference: KernScore, transcription: KernScore) -> dict[str, fl
         ``Meter``, ``NoteValue``) plus their pooled statistics
         (``<key>_tp`` / ``<key>_err``, or ``<key>_sum`` / ``<key>_n`` for the
         note value average) and the overall ``MV2H`` (mean of the components;
-        harmonic analysis is excluded per the MIREX 2026 wiki page).
+        harmonic analysis is excluded for the released dataset).
     """
     matches = match_notes(reference.notes, transcription.notes)
     multi_pitch, mp_tp, mp_err = multi_pitch_f1(

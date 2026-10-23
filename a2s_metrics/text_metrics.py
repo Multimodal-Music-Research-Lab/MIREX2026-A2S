@@ -1,7 +1,7 @@
 """Text-level kern metrics: Word, Character and Line Error Rate.
 
 All three are Levenshtein-based error rates over different tokenizations of
-the kern files (see the MIREX 2026 A2S wiki page):
+the kern files:
 
 - **CER**: Levenshtein distance over the file characters.
 - **WER**: Levenshtein distance over whitespace-separated tokens (kern files
