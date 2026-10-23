@@ -1,0 +1,121 @@
+== Submissions ==
+
+{| class="wikitable"
+! Team
+! PDF
+! A2S Track
+! Training size
+! Number of parameters
+! Training GPU hours
+! Inference real-time factor
+|-
+| Lu et al.
+|
+| Staves-Informed
+| 24,333 (Quartets)
+| 47.1M (46.5M trainable)
+| 22.92 (H800)
+| 0.690
+|-
+| Cummins et al.
+|
+| Blind
+| Quartets
+|
+|
+|
+|-
+| Hidalgo-Centeno et al.
+|
+| Blind
+| 24,351 (Quartets)
+| 322M
+| 185 (RTX 5090 32GB)
+| 0.408
+|}
+
+== QuartetsMIREX 2026 test set ==
+
+The "Undisclosed Evaluation Set" mentioned in the challenge consists of 8 string quartets score taken from [kern.ccarh.org](https://kern.ccarh.org) 
+and processed like the original Quartets dataset to produce 372 kern excerpts.
+These quartets are from composers not represented in the original dataset: Schubert, Brahms, and Mendelssohn.
+
+== Staves-Informed A2S ==
+
+=== Quartets test set ===
+
+{| class="wikitable"
+! Submission
+! WER
+! CER
+! LER
+! MV2H
+|-
+| Lu et al.
+| 0.2160
+| 0.2385
+| 0.5983
+| 0.8796
+|}
+
+=== QuartetsMIREX 2026 ===
+
+{| class="wikitable"
+! Submission
+! WER
+! CER
+! LER
+! MV2H
+|-
+| Lu et al.
+| 0.3177
+| 0.3481
+| 0.7456
+| 0.8179
+|}
+
+== Blind A2S ==
+
+=== Quartets test set ===
+
+{| class="wikitable"
+! Submission
+! WER
+! CER
+! LER
+! MV2H
+|-
+| Cummins et al.
+| 0.0346
+| 0.0347
+| 0.0980
+| 0.9478
+|-
+| Hidalgo-Centeno et al.
+| 0.0286
+| 0.0276
+| 0.0792
+| 0.9492
+|}
+
+=== QuartetsMIREX 2026 ===
+
+{| class="wikitable"
+! Submission
+! WER
+! CER
+! LER
+! MV2H
+|-
+| Cummins et al.
+| 0.3202
+| 0.3150
+| 0.7679
+| 0.5981
+|- 
+| Hidalgo-Centeno et al.
+| 0.3385
+| 0.3258
+| 0.7460
+| 0.6053
+|}

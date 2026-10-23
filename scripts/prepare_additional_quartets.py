@@ -8,7 +8,8 @@ Usage:
         [--raw-dir $A2S_DATA_ROOT/quartets_add_raw]
         [--output $A2S_DATA_ROOT/quartets_add_prepared]
         [--split test] [--seed 0] [--min-measures 3] [--max-measures 6]
-        [--soundfont /usr/share/sounds/sf2/FluidR3_GM.sf2]
+         [--soundfont /usr/share/sounds/sf2/FluidR3_GM.sf2]
+         [--fourth-instrument flt]
         [--audio-format flac] [--limit N] [--skip-existing]
 
 Each source score is split into non-overlapping fragments of 3-6 measures
@@ -16,7 +17,7 @@ Each source score is split into non-overlapping fragments of 3-6 measures
 flattened, fragments with double dots/double sharps/double flats discarded).
 Every fragment yields <track>.kern + <track>.flac (16-bit 22 050 Hz mono,
 the challenge input format). The output can be evaluated with
-scripts/run_metrics.py --dataset quartets_extended.
+scripts/run_metrics.py --dataset quartets_add.
 """
 
 import argparse
@@ -39,7 +40,6 @@ from data_prep.prepare_additional import download_additional, prepare_additional
 
 
 def main() -> int:
-    """Parse CLI arguments and prepare the Quartets Extended dataset."""
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -89,6 +89,11 @@ def main() -> int:
         help="fluidsynth gain (default: %(default)s)",
     )
     parser.add_argument(
+        "--fourth-instrument",
+        default=None,
+        help="Replace the fourth **kern instrument code before synthesis (e.g. flt)",
+    )
+    parser.add_argument(
         "--audio-format",
         choices=["flac", "none"],
         default="flac",
@@ -98,7 +103,7 @@ def main() -> int:
         "--limit",
         type=int,
         default=None,
-        help="Maximum number of sources to download and prepare (for smoke runs)",
+        help="Maximum number of fragments per source (for smoke runs)",
     )
     parser.add_argument(
         "--skip-existing",
@@ -110,7 +115,7 @@ def main() -> int:
     from data_prep.constants import ADDITIONAL_URLS_FILE
 
     urls_file = args.urls_file or ADDITIONAL_URLS_FILE
-    source_stems = download_additional(args.raw_dir, urls_file, limit=args.limit)
+    download_additional(args.raw_dir, urls_file)
     if args.download_only:
         return 0
     if not args.soundfont.exists():
@@ -125,7 +130,8 @@ def main() -> int:
         soundfont=args.soundfont,
         audio_format=args.audio_format,
         gain=args.gain,
-        source_stems=source_stems,
+        fourth_instrument=args.fourth_instrument,
+        limit=args.limit,
         skip_existing=args.skip_existing,
     )
     return 0
