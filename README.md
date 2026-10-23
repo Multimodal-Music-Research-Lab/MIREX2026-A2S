@@ -8,6 +8,9 @@ preparation for the [Quartets dataset](https://huggingface.co/datasets/PRAIG/qua
 
 Challenge description: https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription
 
+The official challenge call was announced [here](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription),
+and final results have been published [here](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription_Results).
+
 ## Setup
 
 ```bash
