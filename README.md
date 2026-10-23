@@ -1,29 +1,35 @@
-# MIREX 2026 — Audio-to-Score Transcription (A2S)
+# MIREX 2026 — Audio-to-Score Transcription (A2S) 🎼
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 
-Code for the MIREX 2026 A2S challenge: evaluation metrics and dataset
-preparation for the [Quartets dataset](https://huggingface.co/datasets/PRAIG/quartets-quartets).
+Code for the MIREX 2026 Audio-to-Score Transcription (A2S) challenge.
 
-Challenge description: https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription
+This repository provides evaluation metrics and dataset preparation tools for
+the [Quartets dataset](https://huggingface.co/datasets/PRAIG/quartets-quartets).
 
-The official challenge call was announced [here](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription),
-and final results have been published [here](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription_Results).
+ - [Challenge description](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription)
+ - [Official challenge call](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription)
+ - [Published results](https://music-ir.org/mirex/wiki/2026:Audio-to-Score_Transcription_Results)
 
-## Setup
+## Setup ⚙️
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
-All datasets are stored under a single data root, set via the `A2S_DATA_ROOT`
-environment variable (default: `/mnt/ssd/dhooge`). Export it before running the
-scripts, e.g. `export A2S_DATA_ROOT=/mnt/ssd/dhooge`, or pass explicit paths
-with `--output` / `--raw-dir` / `--references`.
+Datasets are stored under one data root, configured with `A2S_DATA_ROOT`.
+The default is `/mnt/ssd/dhooge`.
 
-## Metrics
+Set it before running scripts, or pass explicit paths using `--output`,
+`--raw-dir`, or `--references`:
+
+```bash
+export A2S_DATA_ROOT=/mnt/ssd/dhooge
+```
+
+## Metrics 📊
 
 The metrics assess both the textual quality and the musical transcription
 quality of predicted `**kern` files:
@@ -38,18 +44,25 @@ quality of predicted `**kern` files:
   representation.
 - **LER**: Levenshtein distance over complete lines of the cleaned `**kern`
   representation.
-- **MV2H**: mean of four sub-metrics computed on the parsed scores
-  (multi-pitch detection, voice separation, metrical alignment, note value
-  detection). The harmonic analysis component is excluded for the initial
-  edition (no chord information in the datasets), as announced on the wiki
-  page.
+- **MV2H**: mean of four sub-metrics computed on parsed scores:
+  - Multi-pitch detection
+  - Voice separation
+  - Metrical alignment
+  - Note value detection
 
-The MV2H implementation adapts the official MV2H code (McLeod, 2018) and its
-Python port [pyMV2H](https://github.com/lucasmpaim/pyMV2H) to kern scores,
-mirroring the evaluation pipeline of the A2S Transformer reference
-implementation (kern -> score-time note list -> MV2H, with the same 50 ms
-onset/grouping tolerances and 100 ms duration tolerance; voices are kern
-spine columns, onsets are computed from note durations and the `*MM` tempo).
+  Harmonic analysis is excluded in this initial edition because the datasets
+  contain no chord information, as announced on the challenge wiki page.
+
+MV2H adapts the official code (McLeod, 2018) and its Python port,
+[pyMV2H](https://github.com/lucasmpaim/pyMV2H), to kern scores. It mirrors the
+A2S Transformer reference pipeline:
+
+1. Convert kern to a score-time note list.
+2. Evaluate with MV2H using 50 ms onset/grouping tolerances and a 100 ms
+   duration tolerance.
+
+Voices are kern spine columns. Onsets are computed from note durations and the
+`*MM` tempo.
 
 ### Batch evaluation
 
@@ -64,23 +77,24 @@ spine columns, onsets are computed from note durations and the `*MM` tempo).
     --predictions <dir with <track>.kern files>
 ```
 
-Predictions are paired with references by track name (file stem); the
-reference set is selected with `--dataset` (`quartets`, default, or
-`quartets_add`) or by passing an explicit `--references` directory. Missing
-and extra prediction files are reported as warnings. Results contain
-per-track metrics and two aggregates: `macro` (mean of per-track values) and
-`micro` (pooled errors / pooled counts).
+Predictions are paired with references by track name (file stem). Select
+references with `--dataset` (`quartets` by default, or `quartets_add`) or pass
+an explicit `--references` directory.
 
-Passing `--kern-only` evaluates only the `**kern` spines: every other spine
-(e.g. `**dynam`) is removed from the references and the predictions before
-the metrics are computed:
+- Missing and extra prediction files are reported as warnings.
+- Results include per-track metrics and two aggregates:
+  - `macro`: mean of per-track values
+  - `micro`: pooled errors divided by pooled counts
+
+Use `--kern-only` to evaluate only `**kern` spines. Other spines (such as
+`**dynam`) are removed from both references and predictions before evaluation:
 
 ```bash
 .venv/bin/python scripts/run_metrics.py \
     --predictions <dir with <track>.kern files> --kern-only
 ```
 
-## Dataset preparation
+## Dataset Preparation 💾
 
 ```bash
 # Raw parquet shards from the Hugging Face Hub (via hf-mirror.com)
@@ -95,6 +109,7 @@ the metrics are computed:
 ```
 
 Notes:
+
 - `huggingface.co` may be unreachable on some networks; the download script
   uses the `https://hf-mirror.com` mirror by default (override with
   `--endpoint` or the `HF_ENDPOINT` environment variable).
@@ -102,12 +117,16 @@ Notes:
   `flac` extraction is a byte-for-byte copy; `--audio-format wav` re-encodes
   16-bit PCM WAV via soundfile.
 
-### Staves metadata (Staves-Informed A2S track)
+### Staves Metadata (Staves-Informed A2S Track)
 
-For the Staves-Informed track, participants receive the `**kern` header of
-each excerpt (its leading `*` lines: spine types, instrument codes, clefs,
-key signature, meter and tempo) as side information. The header of every
-prepared excerpt is extracted into a per-split `<track>.krn` file:
+For the Staves-Informed track, participants receive each excerpt's `**kern`
+header as side information. The header contains its leading `*` lines:
+
+- Spine types and instrument codes
+- Clefs and key signature
+- Meter and tempo
+
+Each prepared excerpt's header is extracted to a per-split `<track>.krn` file:
 
 ```bash
 # -> $A2S_DATA_ROOT/quartets_headers/<split>/<track>.krn
@@ -116,35 +135,43 @@ prepared excerpt is extracted into a per-split `<track>.krn` file:
 .venv/bin/python scripts/extract_headers.py --input <dir with *.kern> --output <dir>
 ```
 
-The first call is the standard Staves-Informed export: it reads prepared
-quartet excerpts from `$A2S_DATA_ROOT/quartets_prepared` and writes the header
-files and their `**kern`-only counterparts to the two output directories below.
-Use the second form when evaluating a custom prepared directory; add
-`--flute` to also export headers for the flute-compatible additional-quartets
-variant.
+The first command is the standard Staves-Informed export. It reads prepared
+quartet excerpts from `$A2S_DATA_ROOT/quartets_prepared` and writes header files
+plus `**kern`-only counterparts to the output directories shown above.
+
+For a custom prepared directory, use the second command. Add `--flute` to also
+export headers for the flute-compatible additional-quartets variant.
 
 Input files are searched recursively under `--input` (default:
-`$A2S_DATA_ROOT/quartets_prepared`) and the directory layout is mirrored
-under `--output` (default: `$A2S_DATA_ROOT/quartets_headers`). A second
-export keeping only the `**kern` spine columns is written to
-`--kern-only-output` (default: `$A2S_DATA_ROOT/quartets_headers_kern_only`);
-quartets excerpts always have exactly 4 `**kern` spines, and files deviating
-from this are reported as warnings.
+`$A2S_DATA_ROOT/quartets_prepared`), and their directory layout is mirrored
+under `--output` (default: `$A2S_DATA_ROOT/quartets_headers`).
 
-## Additional quartets dataset
+- The `**kern`-only export goes to `--kern-only-output` (default:
+  `$A2S_DATA_ROOT/quartets_headers_kern_only`).
+- Quartets excerpts should have exactly four `**kern` spines; deviations are
+  reported as warnings.
 
-A second, smaller evaluation set is built from eight string quartet scores
-hosted on [kern.ccarh.org](https://kern.ccarh.org) (URLs in
-`additional_quartets.txt`: Schubert D 87 and D 804/ii, Brahms Op. 51/1
-movements 2-3, a Mendelssohn Op. 12 excerpt from Piston's *Harmony*, and
-three Schubert D 87 movements). It is prepared following the data rules of
-Román et al. (2019, section 2.3): non-overlapping fragments of 3-6 measures,
-grace notes and ornaments removed, upper chord notes dropped, split spines
-flattened (no more than four simultaneous voices), and fragments with double
-dots, double sharps or double flats discarded. Section labels are expanded
-along their `*>[...]` thru path, matching the MIDI rendering of the source
-site; the MIDI conversion shared by both is used to cross-check the kern
-parsing (tempo map and total length).
+## Additional Quartets Dataset 🎻
+
+A second, smaller evaluation set is built from eight string quartet scores on
+[kern.ccarh.org](https://kern.ccarh.org), listed in `additional_quartets.txt`:
+
+- Schubert D 87 and D 804/ii
+- Brahms Op. 51/1, movements 2-3
+- A Mendelssohn Op. 12 excerpt from Piston's *Harmony*
+- Three Schubert D 87 movements
+
+Preparation follows Román et al. (2019, section 2.3):
+
+- Use non-overlapping fragments of 3-6 measures.
+- Remove grace notes and ornaments; drop upper chord notes.
+- Flatten split spines to no more than four simultaneous voices.
+- Discard fragments with double dots, double sharps, or double flats.
+- Expand section labels along the `*>[...]` thru path to match the source site's
+  MIDI rendering.
+
+The source MIDI is also used to cross-check kern parsing, including the tempo
+map and total length.
 
 Each fragment is rendered to MIDI from its cleaned reference score and
 synthesized with fluidsynth into the challenge input format (16-bit
@@ -161,24 +188,25 @@ synthesized with fluidsynth into the challenge input format (16-bit
 .venv/bin/python scripts/prepare_additional_quartets.py --audio-format none  # kern only
 ```
 
-The result is 372 `<track>.kern` + `<track>.flac` pairs named
-`<source>.<NNN>` (e.g. `quartet10-1.001`), evaluated with
-`scripts/run_metrics.py --dataset quartets_add`. The flute-compatible variant
-is selected with `scripts/run_metrics.py --dataset quartets_add_flute` and its
-headers are generated by `scripts/extract_headers.py` into
-`$A2S_DATA_ROOT/quartets_add_flute_headers` and
+The result is 372 `<track>.kern` and `<track>.flac` pairs named
+`<source>.<NNN>` (for example, `quartet10-1.001`). Evaluate the standard set
+with `scripts/run_metrics.py --dataset quartets_add`.
+
+Select the flute-compatible variant with
+`scripts/run_metrics.py --dataset quartets_add_flute`. Generate its headers
+under `$A2S_DATA_ROOT/quartets_add_flute_headers` and
 `$A2S_DATA_ROOT/quartets_add_flute_headers_kern_only`:
 
 ```bash
 .venv/bin/python scripts/extract_headers.py --flute
 ```
 
-## Testing with fake predictions
+## Testing with Fake Predictions 🧪
 
-`scripts/make_fake_predictions.py` perturbs reference kern scores (note
-substitutions/deletions, pitch errors, voice crossovers, meter/tempo errors,
-dropped lines, character noise) with a fixed seed, so the metric pipeline can
-be sanity checked without real model output:
+`scripts/make_fake_predictions.py` applies seeded perturbations to reference
+kern scores so the metric pipeline can be checked without real model output.
+It can simulate note substitutions/deletions, pitch errors, voice crossovers,
+meter/tempo errors, dropped lines, and character noise.
 
 ```bash
 # exact copies (sanity: WER/CER/LER = 0, MV2H components = 1)
@@ -199,17 +227,24 @@ be sanity checked without real model output:
     --note-prob 0 --pitch-prob 0 --voice-swap-prob 0 --char-prob 0 --meter-prob 1.0
 ```
 
-`--dataset` selects the reference set for both scripts (default `quartets`).
+`--dataset` selects the reference set for both scripts (default: `quartets`).
 
-Perturbation probabilities: `--note-prob` (note substituted or turned into a
-rest of the same duration), `--pitch-prob`, `--duration-prob`,
-`--voice-swap-prob` (same-duration notes swapped between two voices),
-`--drop-line-prob`, `--meter-prob`, `--tempo-prob`, `--char-prob`.
-Note that `--duration-prob`, `--drop-line-prob` and `--tempo-prob` are
-destructive: they shift subsequent note onsets past the 50 ms MV2H tolerance,
-so they default to 0.
+Perturbation options:
 
-## Repository layout
+- `--note-prob`: substitute a note or turn it into a rest of the same duration.
+- `--pitch-prob`: introduce pitch errors.
+- `--duration-prob`: alter note durations.
+- `--voice-swap-prob`: swap same-duration notes between two voices.
+- `--drop-line-prob`: drop lines.
+- `--meter-prob`: introduce meter errors.
+- `--tempo-prob`: introduce tempo errors.
+- `--char-prob`: introduce character noise.
+
+`--duration-prob`, `--drop-line-prob`, and `--tempo-prob` are destructive:
+they can shift subsequent note onsets beyond the 50 ms MV2H tolerance, so they
+default to 0.
+
+## Repository Layout 📁
 
 ```
 a2s_metrics/       metric implementation (kern parser, WER/CER/LER, MV2H, batch evaluation)
