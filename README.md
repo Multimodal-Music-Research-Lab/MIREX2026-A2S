@@ -201,48 +201,6 @@ under `$A2S_DATA_ROOT/quartets_add_flute_headers` and
 .venv/bin/python scripts/extract_headers.py --flute
 ```
 
-## Testing with Fake Predictions 🧪
-
-`scripts/make_fake_predictions.py` applies seeded perturbations to reference
-kern scores so the metric pipeline can be checked without real model output.
-It can simulate note substitutions/deletions, pitch errors, voice crossovers,
-meter/tempo errors, dropped lines, and character noise.
-
-```bash
-# exact copies (sanity: WER/CER/LER = 0, MV2H components = 1)
-.venv/bin/python scripts/make_fake_predictions.py --perfect --output-dir predictions_perfect
-.venv/bin/python scripts/run_metrics.py --predictions predictions_perfect
-
-# against the additional quartets dataset
-.venv/bin/python scripts/make_fake_predictions.py --dataset quartets_add --perfect \
-    --output-dir predictions_perfect_add
-.venv/bin/python scripts/run_metrics.py --dataset quartets_add --predictions predictions_perfect_add
-
-# default perturbations (graded degradation of all metrics)
-.venv/bin/python scripts/make_fake_predictions.py --output-dir predictions_fake
-.venv/bin/python scripts/run_metrics.py --predictions predictions_fake
-
-# targeted perturbations, e.g. meter errors only
-.venv/bin/python scripts/make_fake_predictions.py --output-dir predictions_meter \
-    --note-prob 0 --pitch-prob 0 --voice-swap-prob 0 --char-prob 0 --meter-prob 1.0
-```
-
-`--dataset` selects the reference set for both scripts (default: `quartets`).
-
-Perturbation options:
-
-- `--note-prob`: substitute a note or turn it into a rest of the same duration.
-- `--pitch-prob`: introduce pitch errors.
-- `--duration-prob`: alter note durations.
-- `--voice-swap-prob`: swap same-duration notes between two voices.
-- `--drop-line-prob`: drop lines.
-- `--meter-prob`: introduce meter errors.
-- `--tempo-prob`: introduce tempo errors.
-- `--char-prob`: introduce character noise.
-
-`--duration-prob`, `--drop-line-prob`, and `--tempo-prob` are destructive:
-they can shift subsequent note onsets beyond the 50 ms MV2H tolerance, so they
-default to 0.
 
 ## Repository Layout 📁
 
