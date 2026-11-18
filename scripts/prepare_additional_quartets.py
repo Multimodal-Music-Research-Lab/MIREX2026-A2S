@@ -8,7 +8,7 @@ Usage:
         [--raw-dir $A2S_DATA_ROOT/quartets_add_raw]
         [--output $A2S_DATA_ROOT/quartets_add_prepared]
         [--split test] [--seed 0] [--min-measures 3] [--max-measures 6]
-         [--soundfont /usr/share/sounds/sf2/FluidR3_GM.sf2]
+         [--soundfont <path to a SoundFont>]
          [--fourth-instrument flt]
         [--audio-format flac] [--limit N] [--skip-existing]
 
@@ -80,7 +80,7 @@ def main() -> int:
         "--soundfont",
         type=Path,
         default=DEFAULT_SOUNDFONT,
-        help="Soundfont for fluidsynth (default: %(default)s)",
+        help="Soundfont for fluidsynth (required unless --audio-format none)",
     )
     parser.add_argument(
         "--gain",
@@ -118,7 +118,9 @@ def main() -> int:
     download_additional(args.raw_dir, urls_file)
     if args.download_only:
         return 0
-    if not args.soundfont.exists():
+    if args.soundfont is None and args.audio_format != "none":
+        parser.error("--soundfont is required unless --audio-format none is selected")
+    if args.soundfont is not None and not args.soundfont.exists():
         raise SystemExit(f"Soundfont not found: {args.soundfont}")
     prepare_additional(
         raw_dir=args.raw_dir,

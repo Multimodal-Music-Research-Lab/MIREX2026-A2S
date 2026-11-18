@@ -3,10 +3,10 @@
 import os
 from pathlib import Path
 
-# Base directory for all downloaded/derived data (per instructions, datasets
-# live under /mnt/ssd/dhooge, not under /home). Override with the
-# A2S_DATA_ROOT environment variable.
-DEFAULT_DATA_ROOT = Path(os.environ.get("A2S_DATA_ROOT", "/mnt/ssd/dhooge"))
+# Base directory for all downloaded/derived data. Override with A2S_DATA_ROOT.
+DEFAULT_DATA_ROOT = Path(
+    os.environ.get("A2S_DATA_ROOT", Path(__file__).resolve().parents[1] / "data")
+)
 
 QUARTETS_RAW_SUBDIR = "quartets"
 QUARTETS_PREPARED_SUBDIR = "quartets_prepared"
@@ -64,7 +64,7 @@ FRAGMENT_SEED = 0
 # resampled to AUDIO_SAMPLE_RATE mono 16-bit FLAC, the challenge format).
 MIDI_PPQ = 480
 SYNTH_RENDER_RATE = 44100
-DEFAULT_SOUNDFONT = Path("/usr/share/sounds/sf2/FluidR3_GM.sf2")
+DEFAULT_SOUNDFONT = None
 # fluidsynth gain chosen so synth levels match the quartets dataset audio
 # (peak ~0.13); the fluidsynth default of 0.2 renders ~6 dB quieter.
 DEFAULT_SYNTH_GAIN = 0.5

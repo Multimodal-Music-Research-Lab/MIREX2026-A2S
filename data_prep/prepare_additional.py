@@ -214,7 +214,7 @@ def prepare_additional(
     seed: int = 0,
     min_measures: int = 3,
     max_measures: int = 6,
-    soundfont: Path = DEFAULT_SOUNDFONT,
+    soundfont: Path | None = DEFAULT_SOUNDFONT,
     audio_format: str = "flac",
     gain: float = DEFAULT_SYNTH_GAIN,
     fourth_instrument: str | None = None,
@@ -229,6 +229,8 @@ def prepare_additional(
     provided, only those downloaded sources are prepared. Returns per-source
     fragment counts.
     """
+    if audio_format != "none" and soundfont is None:
+        raise ValueError("soundfont is required when audio synthesis is enabled")
     output_dir = Path(output_root) / split
     output_dir.mkdir(parents=True, exist_ok=True)
     rng = random.Random(seed)

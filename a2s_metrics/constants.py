@@ -5,7 +5,9 @@ from pathlib import Path
 
 # Base directory holding the downloaded/prepared quartets data. Override with
 # the A2S_DATA_ROOT environment variable (see data_prep/constants.py).
-DEFAULT_DATA_ROOT = Path(os.environ.get("A2S_DATA_ROOT", "/mnt/ssd/dhooge"))
+DEFAULT_DATA_ROOT = Path(
+    os.environ.get("A2S_DATA_ROOT", Path(__file__).resolve().parents[1] / "data")
+)
 
 # Matching thresholds (milliseconds), mirroring the MV2H reference
 # implementations (apmcleod/MV2H, lucasmpaim/pyMV2H).
