@@ -96,26 +96,7 @@ Use `--kern-only` to evaluate only `**kern` spines. Other spines (such as
 
 ## Dataset Preparation 💾
 
-```bash
-# Raw parquet shards from the Hugging Face Hub (via hf-mirror.com)
-.venv/bin/python scripts/download_quartets.py                 # -> $A2S_DATA_ROOT/quartets
-
-# Per-excerpt extraction: <track>.kern + <track>.flac (16-bit 22 050 Hz mono,
-# the challenge input format) under $A2S_DATA_ROOT/quartets_prepared/<split>/
-.venv/bin/python scripts/prepare_quartets.py                  # all splits
-.venv/bin/python scripts/prepare_quartets.py --splits test    # test split only
-.venv/bin/python scripts/prepare_quartets.py --limit 50       # smoke run
-.venv/bin/python scripts/prepare_quartets.py --audio-format none   # kern only
-```
-
-Notes:
-
-- `huggingface.co` may be unreachable on some networks; the download script
-  uses the `https://hf-mirror.com` mirror by default (override with
-  `--endpoint` or the `HF_ENDPOINT` environment variable).
-- The dataset ships the audio as 16-bit 22 050 Hz mono FLAC, so the default
-  `flac` extraction is a byte-for-byte copy; `--audio-format wav` re-encodes
-  16-bit PCM WAV via soundfile.
+The Quartets dataset can be downloaded from the [PRAIG Quartets dataset on Hugging Face](https://huggingface.co/datasets/PRAIG/quartets-quartets).
 
 ### Staves Metadata (Staves-Informed A2S Track)
 
