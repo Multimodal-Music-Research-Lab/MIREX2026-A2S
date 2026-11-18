@@ -67,14 +67,14 @@ def load_kern_references(references_dir: Path, kern_only: bool = False) -> dict[
 
 
 def collect_predictions(predictions_dir: Path) -> dict[str, Path]:
-    """Map each ``*.kern`` or ``*.krn`` file to its track stem."""
+    """Map each ``*.krn`` file to its track stem."""
     predictions_dir = Path(predictions_dir)
     if not predictions_dir.is_dir():
         raise FileNotFoundError(f"Predictions directory not found: {predictions_dir}")
-    paths = sorted((*predictions_dir.glob("*.kern"), *predictions_dir.glob("*.krn")))
+    paths = sorted(predictions_dir.glob("*.krn"))
     predictions = {path.stem: path for path in paths}
     if not predictions:
-        raise FileNotFoundError(f"No *.kern or *.krn prediction files found in {predictions_dir}")
+        raise FileNotFoundError(f"No *.krn prediction files found in {predictions_dir}")
     return predictions
 
 
